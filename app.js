@@ -170,24 +170,13 @@ function apriApp(tipoApp) {
     const titolo = titoliApp[tipoApp];
     
     if (percorso) {
-        title.textContent = titolo;
-        iframe.src = percorso;
-        viewer.style.display = 'block';
+        // Apri in nuova finestra invece che iframe
+        window.open(percorso, '_blank');
         console.log(`📱 Apertura app: ${titolo}`);
     } else {
         alert('App non disponibile: ' + tipoApp);
     }
 }
-
-function chiudiApp() {
-    const iframe = document.getElementById('viewer-iframe');
-    const viewer = document.getElementById('app-viewer');
-    
-    iframe.src = 'about:blank';
-    viewer.style.display = 'none';
-    console.log('✅ Tornato al menu principale');
-}
-
 
 // ============================================
 // GESTIONE SESSIONE UTENTE

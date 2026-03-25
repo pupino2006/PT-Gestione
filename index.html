@@ -216,43 +216,6 @@
         .badge-attivo { background: var(--success); color: white; }
         .badge-integrazione { background: var(--warning); color: #333; }
         
-        /* ========== VISUALIZZATORE APP (iframe) ========== */
-        #app-viewer {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--white);
-            z-index: 1000;
-        }
-        
-        .viewer-header {
-            background: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .btn-close-viewer {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .viewer-content {
-            width: 100%;
-            height: calc(100vh - 60px);
-            border: none;
-        }
-        
         /* ========== FOOTER INFO ========== */
         .info-footer {
             text-align: center;
@@ -392,14 +355,7 @@
         </div>
     </div>
 
-    <!-- ========== VISUALIZZATORE APP ========== -->
-    <div id="app-viewer">
-        <div class="viewer-header">
-            <span id="viewer-title">App</span>
-            <button class="btn-close-viewer" onclick="chiudiApp()">← Torna al Menu</button>
-        </div>
-        <iframe id="viewer-iframe" class="viewer-content"></iframe>
-    </div>
+    <!-- Le app si aprono in nuove finestre -->
 
     <!-- ========== SUPABASE ========== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
