@@ -65,12 +65,16 @@
             cursor: pointer; 
             transition: 0.3s; 
             border-bottom: 3px solid transparent; 
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .tab-btn.active { 
             color: white; 
             border-bottom-color: white; 
             background: rgba(255,255,255,0.1); 
+        }
+        .tab-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .container { padding: 20px; max-width: 600px; margin: auto; }
@@ -93,6 +97,36 @@
             font-weight: bold; 
         }
         
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .step-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            background: #ddd;
+            color: #666;
+        }
+        
+        .step-dot.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step-dot.completed {
+            background: var(--success);
+            color: white;
+        }
+        
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--primary); font-size: 0.85rem; }
         .input-group input, .input-group select, .input-group textarea { 
@@ -101,6 +135,10 @@
             border: 2px solid #ddd; 
             border-radius: 10px; 
             font-size: 1rem; 
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+            outline: none;
         }
         
         .btn-main { 
@@ -116,23 +154,21 @@
             margin-top: 10px;
         }
         
-        .btn-secondary { 
-            background: var(--secondary); 
-        }
+        .btn-success { background: var(--success); }
+        .btn-warning { background: var(--warning); color: #333; }
+        .btn-danger { background: var(--danger); }
+        .btn-secondary { background: var(--secondary); }
         
-        .btn-success { 
-            background: var(--success); 
-        }
-        
-        .btn-danger { 
-            background: var(--danger); 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         /* Foto Preview */
         .foto-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
             margin: 15px 0;
         }
         
@@ -145,28 +181,23 @@
         
         .foto-item img {
             width: 100%;
-            height: 100px;
+            height: 80px;
             object-fit: cover;
         }
         
-        .foto-remove {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: var(--danger);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            font-size: 14px;
+        .foto-item.processed {
+            border-color: var(--success);
         }
         
-        .foto-info {
-            padding: 5px;
-            font-size: 0.75rem;
-            background: #f8f9fa;
+        .foto-item .foto-num {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px;
             text-align: center;
         }
         
@@ -205,12 +236,14 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             z-index: 9999;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
+            text-align: center;
+            padding: 20px;
         }
         
         .spinner {
@@ -238,7 +271,7 @@
         
         .totali {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             text-align: center;
         }
@@ -250,13 +283,13 @@
         }
         
         .totale-num {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: var(--primary);
         }
         
         .totale-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--secondary);
         }
         
@@ -265,22 +298,57 @@
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         
         .data-table th, .data-table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 6px;
             text-align: left;
         }
         
         .data-table th {
             background: var(--primary);
             color: white;
+            font-size: 0.7rem;
         }
         
         .data-table tr:nth-child(even) {
             background: #f8f9fa;
+        }
+        
+        .data-table input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        /* Fornitore info */
+        .fornitore-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s;
         }
     </style>
 </head>
@@ -289,6 +357,10 @@
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div id="loading-text">Elaborazione in corso...</div>
+        <div id="loading-progress">0%</div>
+        <div class="progress-bar" style="width: 200px;">
+            <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+        </div>
     </div>
 
     <div class="header-logo">
@@ -297,50 +369,73 @@
 
     <!-- TABS -->
     <nav class="tabs">
-        <button class="tab-btn active" onclick="openTab('foto')">📸 FOTO</button>
-        <button class="tab-btn" onclick="openTab('dati')">📝 DATI</button>
-        <button class="tab-btn" onclick="openTab('colli')">📦 COLLI</button>
-        <button class="tab-btn" onclick="openTab('salva')">💾 SALVA</button>
+        <button class="tab-btn active" id="tab-btn-1" onclick="vaiAlStep(1)">1. 📸</button>
+        <button class="tab-btn" id="tab-btn-2" onclick="vaiAlStep(2)" disabled>2. 📋</button>
+        <button class="tab-btn" id="tab-btn-3" onclick="vaiAlStep(3)" disabled>3. ✏️</button>
+        <button class="tab-btn" id="tab-btn-4" onclick="vaiAlStep(4)" disabled>4. 📥</button>
     </nav>
 
-    <!-- TAB 1: FOTO -->
-    <div id="tab-foto" class="tab-content container">
-        <div class="section-title">📸 Carica Foto Etichette</div>
+    <!-- STEP INDICATOR -->
+    <div class="container">
+        <div class="step-indicator">
+            <div class="step-dot active" id="step-1">1</div>
+            <div class="step-dot" id="step-2">2</div>
+            <div class="step-dot" id="step-3">3</div>
+            <div class="step-dot" id="step-4">4</div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 1: CARICAMENTO FOTO -->
+    <!-- ============================================== -->
+    <div id="step-1-content" class="tab-content container">
+        <div class="section-title">📸 Step 1: Carica le Foto</div>
         
         <div class="card">
             <p style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 15px;">
-                Carica una o più foto delle etichette dei colli. L'app proverà ad estrarre automaticamente i dati (codice, MQ, peso).
+                📷 Carica le foto delle <strong>etichette</strong> di tutti i rotoli. 
+                L'app analizzerà automaticamente tutte le foto e estrarrà i dati comuni.
             </p>
             
             <input type="file" id="fotoInput" accept="image/*" multiple style="display: none;" onchange="gestisciFotoSelezionate(event)">
             
-            <button class="btn-main" onclick="document.getElementById('fotoInput').click()">
+            <button class="btn-main btn-warning" onclick="document.getElementById('fotoInput').click()">
                 📁 Seleziona Foto dalla Galleria
             </button>
             
             <div id="fotoGrid" class="foto-grid"></div>
             
-            <button id="btnOCR" class="btn-main btn-secondary" onclick="avviaOCR()" style="display: none;">
-                🔍 Analizza Foto con OCR
+            <button id="btnAnalizza" class="btn-main btn-success" onclick="analizzaTutteFoto()" style="display: none;">
+                🔍 Analizza Tutte le Foto
             </button>
         </div>
     </div>
 
-    <!-- TAB 2: DATI COMUNI -->
-    <div id="tab-dati" class="tab-content container" style="display: none;">
-        <div class="section-title">📝 Dati Comuni a Tutti i Colli</div>
+    <!-- ============================================== -->
+    <!-- STEP 2: DATI COMUNI -->
+    <!-- ============================================== -->
+    <div id="step-2-content" class="tab-content container" style="display: none;">
+        <div class="section-title">📋 Step 2: Dati Comuni</div>
         
         <div class="card">
+            <p style="color: var(--secondary); font-size: 0.9rem;">
+                I dati estratti dalle foto sono stati associati. Compila i dati comuni a tutti i rotoli.
+            </p>
+            
+            <div id="fornitoreEstratto" class="fornitore-badge" style="display: none;"></div>
+            
             <div class="input-group">
-                <label>🏭 Fornitore:</label>
-                <select id="fornitore">
+                <label>🏭 Fornitore/Produttore:</label>
+                <select id="fornitore" onchange="aggiornaDescrizioni()">
                     <option value="">Seleziona...</option>
                     <option value="LAMPRE">LAMPRE</option>
                     <option value="MARCEGAGLIA">MARCEGAGLIA</option>
                     <option value="ARCELORMITTAL">ARCELORMITTAL</option>
                     <option value="NOVELIS">NOVELIS</option>
+                    <option value="ATERA">ATERA</option>
+                    <option value="GUARDA">GUARDA</option>
+                    <option value="SOREN">SOREN</option>
                     <option value="ALTRO">ALTRO</option>
-                    <option value="Sconosciuto">Sconosciuto</option>
                 </select>
             </div>
             
@@ -350,40 +445,110 @@
             </div>
             
             <div class="input-group">
-                <label>📝 Note / Descrizione:</label>
-                <textarea id="note" rows="3" placeholder="Note aggiuntive..."></textarea>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 3: COLLI -->
-    <div id="tab-colli" class="tab-content container" style="display: none;">
-        <div class="section-title">📦 Dati per ogni Collo</div>
-        
-        <div class="card">
-            <div class="input-group">
-                <label>Numero di Colli:</label>
-                <input type="number" id="numColli" min="1" max="100" value="1" onchange="aggiornaColli()">
+                <label>📝 Note:</label>
+                <textarea id="note" rows="2" placeholder="Note aggiuntive..."></textarea>
             </div>
             
-            <button class="btn-main btn-secondary" onclick="aggiungiCollo()">
-                ➕ Aggiungi Collo
+            <div style="margin-top: 20px;">
+                <p style="font-weight: bold; color: var(--primary);">📦 Numero rotoli trovati: <span id="numRotoli">0</span></p>
+            </div>
+            
+            <button class="btn-main btn-success" onclick="vaiAlStep(3)">
+                Avanti ➔
             </button>
         </div>
-        
-        <div id="colliContainer"></div>
     </div>
 
-    <!-- TAB 4: SALVA -->
-    <div id="tab-salva" class="tab-content container" style="display: none;">
-        <div class="section-title">💾 Salva ed Esporta</div>
+    <!-- ============================================== -->
+    <!-- STEP 3: DATI SINGOLI -->
+    <!-- ============================================== -->
+    <div id="step-3-content" class="tab-content container" style="display: none;">
+        <div class="section-title">✏️ Step 3: Dati per Rotolo</div>
+        
+        <div class="card">
+            <p style="color: var(--secondary); font-size: 0.9rem;">
+                Inserisci i dati per ogni rotolo. I campi compilati automaticamente possono essere modificati.
+            </p>
+            
+            <div class="input-group">
+                <label>Rotolo corrente:</label>
+                <select id="rotoloCorrente" onchange="mostraRotoloSelezionato()">
+                    <option value="">Seleziona rotolo...</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="rotoloForm" class="card" style="display: none;">
+            <div class="collo-header">
+                <span class="collo-number" id="rotoloTitolo">Rotolo #1</span>
+                <span id="rotoloStatus" style="color: var(--success);">✓ Compilato</span>
+            </div>
+            
+            <div class="input-group">
+                <label>📊 Codice a Barre:</label>
+                <input type="text" id="codiceBarre" placeholder="Codice a barre...">
+            </div>
+            
+            <div class="two-cols">
+                <div class="input-group">
+                    <label>⚖️ Peso (KG):</label>
+                    <input type="number" id="peso" placeholder="Peso...">
+                </div>
+                <div class="input-group">
+                    <label>📐 MQ:</label>
+                    <input type="number" step="0.01" id="mq" placeholder="Metri quadri...">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>🏷️ Descrizione:</label>
+                <select id="descrizione" onchange="aggiornaColore()">
+                    <option value="">Seleziona descrizione...</option>
+                </select>
+            </div>
+            
+            <div class="two-cols">
+                <div class="input-group">
+                    <label>🎨 Codice Colore:</label>
+                    <select id="codiceColore">
+                        <option value="">Seleziona colore...</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>📏 Spessore (mm):</label>
+                    <input type="number" step="0.01" id="spessore" placeholder="Spessore...">
+                </div>
+            </div>
+            
+            <div class="two-cols">
+                <div class="input-group">
+                    <label>↔️ Larghezza (mm):</label>
+                    <input type="number" id="larghezza" placeholder="Larghezza...">
+                </div>
+                <div class="input-group">
+                    <label>↕️ Lunghezza (m):</label>
+                    <input type="number" step="0.1" id="lunghezza" placeholder="Lunghezza...">
+                </div>
+            </div>
+            
+            <button class="btn-main btn-secondary" onclick="salvaRotoloCorrente()">
+                💾 Salva e Prossimo
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 4: ESPORTA -->
+    <!-- ============================================== -->
+    <div id="step-4-content" class="tab-content container" style="display: none;">
+        <div class="section-title">📥 Step 4: Esporta</div>
         
         <div class="riepilogo-box">
-            <h4 style="margin-top: 0;">📊 Riepilogo</h4>
+            <h4 style="margin-top: 0;">📊 Riepilogo Finale</h4>
             <div class="totali">
                 <div class="totale-item">
-                    <div class="totale-num" id="totColli">0</div>
-                    <div class="totale-label">Colli</div>
+                    <div class="totale-num" id="totRotoli">0</div>
+                    <div class="totale-label">Rotoli</div>
                 </div>
                 <div class="totale-item">
                     <div class="totale-num" id="totMQ">0</div>
@@ -393,10 +558,14 @@
                     <div class="totale-num" id="totPeso">0</div>
                     <div class="totale-label">KG Totali</div>
                 </div>
+                <div class="totale-item">
+                    <div class="totale-num" id="totLinea1">0</div>
+                    <div class="totale-label">Linea 1</div>
+                </div>
             </div>
         </div>
         
-        <div id="tabellaPreview"></div>
+        <div id="tabellaPreview" class="card" style="overflow-x: auto;"></div>
         
         <button class="btn-main btn-success" onclick="esportaExcel()">
             📥 Esporta in Excel
@@ -405,41 +574,149 @@
         <button class="btn-main" onclick="nuovoCarico()" style="background: var(--secondary);">
             🔄 Nuovo Carico
         </button>
-        
-        <button class="btn-main btn-danger" onclick="salvaInCloud()" style="background: #6f42c1;">
-            ☁️ Salva nel Cloud (Supabase)
-        </button>
     </div>
 
     <script>
         // ============================================
+        // DATABASE DESCRIZIONI E COLORI PER FORNITORE
+        // ============================================
+        const databaseFornitori = {
+            'LAMPRE': {
+                descrizioni: [
+                    'LAMPRE 0.50 ALUMINIO', 'LAMPRE 0.60 ALUMINIO', 'LAMPRE 0.50 ACCIAIO',
+                    'LAMPRE 0.60 ACCIAIO', 'LAMPRE 0.50 PREVERNICIATO', 'LAMPRE 0.60 PREVERNICIATO'
+                ],
+                colori: ['RAL 9002', 'RAL 9010', 'RAL 7016', 'RAL 6009', 'RAL 8017', 'RAL 3000']
+            },
+            'MARCEGAGLIA': {
+                descrizioni: [
+                    'MARCEGAGLIA 0.50 ZINCATO', 'MARCEGAGLIA 0.60 ZINCATO',
+                    'MARCEGAGLIA 0.50 PREVERNICIATO', 'MARCEGAGLIA 0.60 PREVERNICIATO',
+                    'MARCEGAGLIA 0.50 ALLUMINIO', 'MARCEGAGLIA 0.60 ALLUMINIO'
+                ],
+                colori: ['RAL 9002', 'RAL 9010', 'RAL 7016', 'RAL 6009', 'RAL 8017', 'MP001', 'MP002', 'MP003']
+            },
+            'ARCELORMITTAL': {
+                descrizioni: [
+                    'ARCELORMITTAL 0.50 ZINCATO', 'ARCELORMITTAL 0.60 ZINCATO',
+                    'ARCELORMITTAL 0.50 PREVERNICIATO', 'ARCELORMITTAL 0.60 PREVERNICIATO'
+                ],
+                colori: ['RAL 9002', 'RAL 9010', 'RAL 7016', 'RAL 6009', 'RAL 8017']
+            },
+            'NOVELIS': {
+                descrizioni: [
+                    'NOVELIS 0.50 ALLUMINIO', 'NOVELIS 0.60 ALLUMINIO',
+                    'NOVELIS 0.50 PREVERNICIATO', 'NOVELIS 0.60 PREVERNICIATO'
+                ],
+                colori: ['NATURALE', 'PREVERNICIATO RAL 9006', 'PREVERNICIATO RAL 9010']
+            },
+            'ATERA': {
+                descrizioni: [
+                    'ATERA 0.50 ZINCATO', 'ATERA 0.60 ZINCATO',
+                    'ATERA 0.50 PREVERNICIATO', 'ATERA 0.60 PREVERNICIATO'
+                ],
+                colori: ['RAL 9002', 'RAL 9010', 'RAL 7016', 'RAL 8017']
+            },
+            'GUARDA': {
+                descrizioni: [
+                    'GUARDA 0.50 ZINCATO', 'GUARDA 0.60 ZINCATO',
+                    'GUARDA 0.50 PREVERNICIATO', 'GUARDA 0.60 PREVERNICIATO'
+                ],
+                colori: ['RAL 9002', 'RAL 9010', 'RAL 7016', 'RAL 8017']
+            },
+            'SOREN': {
+                descrizioni: [
+                    'SOREN 0.50 ZINCATO', 'SOREN 0.60 ZINCATO',
+                    'SOREN 0.50 PREVERNICIATO', 'SOREN 0.60 PREVERNICIATO'
+                ],
+                colori: ['RAL 9002', 'RAL 9010', 'RAL 7016', 'RAL 8017']
+            }
+        };
+        
+        // ============================================
         // STATO APPLICAZIONE
         // ============================================
         const stato = {
-            foto: [],           // Foto caricate {file, dataUrl, nome}
-            datiOCR: [],        // Dati estratti dall'OCR per ogni foto
-            numColli: 1,
-            colli: []           // Dati per ogni collo
+            step: 1,
+            foto: [],
+            datiOCR: [],
+            rotoli: [],
+            rotoloCorrente: 0,
+            fornitore: '',
+            dataArrivo: '',
+            note: ''
         };
         
         // Inizializza
         document.getElementById('dataArrivo').valueAsDate = new Date();
-        aggiornaColli();
         
         // ============================================
-        // GESTIONE TAB
+        // NAVIGAZIONE STEP
         // ============================================
-        function openTab(tabName) {
-            // Nascondi tutti i tab
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        function vaiAlStep(step) {
+            if (step < stato.step) {
+                // Puoi tornare indietro
+                stato.step = step;
+                aggiornaUI();
+            } else if (step === stato.step + 1) {
+                // Vai avanti solo se validato
+                if (validaStep(stato.step)) {
+                    stato.step++;
+                    aggiornaUI();
+                }
+            }
+        }
+        
+        function validaStep(step) {
+            if (step === 1) {
+                return stato.foto.length > 0;
+            }
+            if (step === 2) {
+                return document.getElementById('fornitore').value !== '';
+            }
+            if (step === 3) {
+                // Verifica che tutti i rotoli siano compilati
+                return stato.rotoli.every(r => r.peso > 0 && r.mq > 0);
+            }
+            return true;
+        }
+        
+        function aggiornaUI() {
+            // Aggiorna tabs
+            for (let i = 1; i <= 4; i++) {
+                const tab = document.getElementById(`step-${i}-content`);
+                const btn = document.getElementById(`tab-btn-${i}`);
+                const dot = document.getElementById(`step-${i}`);
+                
+                if (i === stato.step) {
+                    tab.style.display = 'block';
+                    btn.classList.add('active');
+                    btn.disabled = false;
+                    dot.classList.add('active');
+                } else if (i < stato.step) {
+                    tab.style.display = 'none';
+                    btn.classList.remove('active');
+                    btn.disabled = false;
+                    dot.classList.remove('active');
+                    dot.classList.add('completed');
+                } else {
+                    tab.style.display = 'none';
+                    btn.classList.remove('active');
+                    btn.disabled = true;
+                    dot.classList.remove('active', 'completed');
+                }
+            }
             
-            // Mostra tab selezionato
-            document.getElementById('tab-' + tabName).style.display = 'block';
-            event.target.classList.add('active');
-            
-            // Aggiorna riepilogo se siamo nel tab salva
-            if (tabName === 'salva') aggiornaRiepilogo();
+            // Step specifico
+            if (stato.step === 2) {
+                document.getElementById('numRotoli').textContent = stato.foto.length;
+            }
+            if (stato.step === 3) {
+                popolaSelectRotoli();
+            }
+            if (stato.step === 4) {
+                aggiornaRiepilogo();
+            }
         }
         
         // ============================================
@@ -451,60 +728,47 @@
             for (let file of files) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    // Evita duplicati
                     if (!stato.foto.some(f => f.nome === file.name)) {
                         stato.foto.push({
                             file: file,
                             dataUrl: e.target.result,
-                            nome: file.name
+                            nome: file.name,
+                            elaborata: false
                         });
-                        stato.datiOCR.push({
-                            codice: '', mq: 0, peso: 0, barcode: '',
-                            spessore: 0, larghezza: 0, lunghezza: 0,
-                            colore: '', nome_foto: file.name
-                        });
-                        aggiornaFotoGrid();
                     }
                 };
                 reader.readAsDataURL(file);
             }
             
-            // Resetta input
             event.target.value = '';
+            aggiornaFotoGrid();
         }
         
         function aggiornaFotoGrid() {
             const grid = document.getElementById('fotoGrid');
-            const btnOCR = document.getElementById('btnOCR');
+            const btnAnalizza = document.getElementById('btnAnalizza');
             
             if (stato.foto.length === 0) {
                 grid.innerHTML = '';
-                btnOCR.style.display = 'none';
+                btnAnalizza.style.display = 'none';
                 return;
             }
             
-            btnOCR.style.display = 'block';
-            btnOCR.textContent = `🔍 Analizza ${stato.foto.length} Foto con OCR`;
+            btnAnalizza.style.display = 'block';
+            btnAnalizza.textContent = `🔍 Analizza ${stato.foto.length} Foto`;
             
             grid.innerHTML = stato.foto.map((foto, idx) => `
-                <div class="foto-item">
-                    <img src="${foto.dataUrl}" alt="${foto.nome}">
-                    <button class="foto-remove" onclick="rimuoviFoto(${idx})">×</button>
-                    <div class="foto-info">${foto.nome.substring(0, 15)}...</div>
+                <div class="foto-item ${foto.elaborata ? 'processed' : ''}">
+                    <img src="${foto.dataUrl}" alt="Foto ${idx + 1}">
+                    <div class="foto-num">#${idx + 1}</div>
                 </div>
             `).join('');
         }
         
-        function rimuoviFoto(idx) {
-            stato.foto.splice(idx, 1);
-            stato.datiOCR.splice(idx, 1);
-            aggiornaFotoGrid();
-        }
-        
         // ============================================
-        // OCR con Tesseract.js
+        // OCR CON TESSERACT.JS
         // ============================================
-        async function avviaOCR() {
+        async function analizzaTutteFoto() {
             if (stato.foto.length === 0) {
                 alert('Carica prima delle foto!');
                 return;
@@ -516,25 +780,48 @@
                 const worker = await Tesseract.createWorker('ita+eng');
                 
                 for (let i = 0; i < stato.foto.length; i++) {
+                    document.getElementById('loading-text').textContent = 
+                        `Analisi foto ${i + 1} di ${stato.foto.length}...`;
+                    document.getElementById('loading-progress').textContent = 
+                        Math.round((i / stato.foto.length) * 100) + '%';
+                    document.getElementById('progress-fill').style.width = 
+                        (i / stato.foto.length * 100) + '%';
+                    
                     const { data } = await worker.recognize(stato.foto[i].dataUrl);
                     const dati = estraiDatiOCR(data.text);
-                    stato.datiOCR[i] = { ...stato.datiOCR[i], ...dati };
                     
-                    document.getElementById('loading-text').textContent = 
-                        `Analizzando foto ${i + 1} di ${stato.foto.length}...`;
+                    // Crea rotolo con dati estratti
+                    stato.rotoli.push({
+                        ...dati,
+                        nomeFoto: stato.foto[i].nome,
+                        compilato: dati.peso > 0 && dati.mq > 0
+                    });
+                    
+                    stato.foto[i].elaborata = true;
                 }
                 
                 await worker.terminate();
                 
-                // Assicura che ci siano tanti colli quante foto
-                if (stato.numColli < stato.foto.length) {
-                    stato.numColli = stato.foto.length;
-                    document.getElementById('numColli').value = stato.numColli;
-                    aggiornaColli();
+                // Determina fornitore più frequente
+                const fornitori = {};
+                stato.rotoli.forEach(r => {
+                    if (r.fornitore) {
+                        fornitori[r.fornitore] = (fornitori[r.fornitore] || 0) + 1;
+                    }
+                });
+                const fornitorePiuFrequente = Object.keys(fornitori).sort((a, b) => fornitori[b] - fornitori[a])[0];
+                
+                if (fornitorePiuFrequente) {
+                    document.getElementById('fornitore').value = fornitorePiuFrequente;
+                    document.getElementById('fornitoreEstratto').textContent = fornitorePiuFrequente;
+                    document.getElementById('fornitoreEstratto').style.display = 'inline-block';
                 }
                 
                 nascondiLoading();
-                alert('✅ OCR completato! I dati sono stati estratti. Vai alla scheda COLLI per verificarli.');
+                
+                // Vai automaticamente allo step 2
+                stato.step = 2;
+                aggiornaUI();
                 
             } catch (error) {
                 nascondiLoading();
@@ -543,38 +830,41 @@
             }
         }
         
-        // ============================================
-        // ESTRAZIONE DATI DAL TESTO OCR
-        // ============================================
         function estraiDatiOCR(testo) {
             const righe = testo.toUpperCase().split('\n').map(r => r.trim()).filter(r => r);
             const tCompleto = righe.join(' ');
             
             const dati = {
-                codice: '',
-                mq: 0,
+                codiceBarre: '',
                 peso: 0,
-                barcode: '',
+                mq: 0,
+                fornitore: '',
                 spessore: 0,
                 larghezza: 0,
                 lunghezza: 0,
-                colore: ''
+                colore: '',
+                descrizione: ''
             };
             
-            // Cerca barcode (pattern S + numeri)
+            // Identifica fornitore
+            const fornitori = ['LAMPRE', 'MARCEGAGLIA', 'ARCELOR', 'NOVELIS', 'ATERA', 'GUARDA', 'SOREN'];
+            for (let f of fornitori) {
+                if (tCompleto.includes(f)) {
+                    dati.fornitore = f === 'ARCELOR' ? 'ARCELORMITTAL' : f;
+                    break;
+                }
+            }
+            
+            // Codice a barre
             const bcMatch = tCompleto.match(/S[\s]*(\d[\s]*){9,10}/);
-            if (bcMatch) dati.barcode = bcMatch[0].replace(/\s/g, '');
+            if (bcMatch) dati.codiceBarre = bcMatch[0].replace(/\s/g, '');
             
-            // Cerca codice articolo
-            const codMatch = tCompleto.match(/\b([A-Z]{2,4}\d{4,8}|\d{8})\b/);
-            if (codMatch) dati.codice = codMatch[0];
-            
-            // Cerca MQ
-            const mqMatch = tCompleto.match(/(\d+[.,]\d{1,3})\s*(?:MQ|M2|M²|METRI QUADRI)/i) ||
-                           tCompleto.match(/(?:MQ|M2|M²)[^\d]*(\d+[.,]\d{1,3})/i);
+            // MQ
+            const mqMatch = tCompleto.match(/(\d+[.,]\d{1,3})\s*(?:MQ|M2|M²)/i) ||
+                           tCompleto.match(/(?:MQ|M²)[^\d]*(\d+[.,]\d{1,3})/i);
             if (mqMatch) dati.mq = parseFloat(mqMatch[1].replace(',', '.'));
             
-            // Cerca peso (KG)
+            // Peso
             const pesoMatch = tCompleto.match(/(\d{4})\s*(?:KG|NET)/i) ||
                              tCompleto.match(/(?:KG|NET)[^\d]*(\d{4})/i);
             if (pesoMatch) {
@@ -582,196 +872,211 @@
                 if (peso > 500 && peso < 8000) dati.peso = peso;
             }
             
-            // Cerca spessore
+            // Spessore
             const spessMatch = tCompleto.match(/0[.,](\d{2,3})\b|\b0(\d{2})\b/);
             if (spessMatch) {
                 const res = (spessMatch[1] || spessMatch[2]).replace(',', '.');
                 dati.spessore = parseFloat('0.' + res) || parseFloat(res) / 100;
             }
             
-            // Cerca larghezza
+            // Larghezza
             const largMatch = tCompleto.match(/\b(1000|1200|1219|1225|1250|1500)\b/);
             if (largMatch) dati.larghezza = parseInt(largMatch[1]);
             
-            // Cerca colore
-            const colMatch = tCompleto.match(/\b(MP\d{3}|RAL\s*\d{4}|\d{4})\b/i);
-            if (colMatch) dati.colore = colMatch[0].replace(/\s/g, '');
+            // Lunghezza
+            const lungMatch = tCompleto.match(/(\d+[.,]\d{1,2})\s*(?:M|METRI)/i);
+            if (lungMatch) dati.lunghezza = parseFloat(lungMatch[1].replace(',', '.'));
+            
+            // Calcola MQ da larghezza e lunghezza se non trovato
+            if (dati.mq === 0 && dati.larghezza > 0 && dati.lunghezza > 0) {
+                dati.mq = (dati.larghezza / 1000) * dati.lunghezza;
+            }
             
             return dati;
         }
         
         // ============================================
-        // GESTIONE COLLI
+        // STEP 2 - DATI COMUNI
         // ============================================
-        function aggiornaColli() {
-            stato.numColli = parseInt(document.getElementById('numColli').value) || 1;
+        function aggiornaDescrizioni() {
+            const fornitore = document.getElementById('fornitore').value;
+            stato.fornitore = fornitore;
             
-            // Assicura che ci siano abbastanza dati OCR
-            while (stato.datiOCR.length < stato.numColli) {
-                stato.datiOCR.push({
-                    codice: '', mq: 0, peso: 0, barcode: '',
-                    spessore: 0, larghezza: 0, lunghezza: 0,
-                    colore: '', nome_foto: ''
+            // Riempi select descrizioni per ogni rotolo
+            stato.rotoli.forEach((rotolo, idx) => {
+                const select = document.createElement('select');
+                select.innerHTML = '<option value="">Seleziona...</option>';
+                
+                if (databaseFornitori[fornitore]) {
+                    databaseFornitori[fornitore].descrizioni.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        if (rotolo.descrizione === d) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                }
+            });
+        }
+        
+        // ============================================
+        // STEP 3 - DATI SINGOLI
+        // ============================================
+        function popolaSelectRotoli() {
+            const select = document.getElementById('rotoloCorrente');
+            select.innerHTML = '<option value="">Seleziona rotolo...</option>';
+            
+            stato.rotoli.forEach((rotolo, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `Rotolo #${idx + 1} ${rotolo.compilato ? '✓' : '⚠️'}`;
+                select.appendChild(opt);
+            });
+            
+            if (stato.rotoli.length > 0 && stato.rotoloCorrente === 0) {
+                select.value = 0;
+                mostraRotoloSelezionato();
+            }
+        }
+        
+        function mostraRotoloSelezionato() {
+            const idx = parseInt(document.getElementById('rotoloCorrente').value);
+            if (isNaN(idx)) {
+                document.getElementById('rotoloForm').style.display = 'none';
+                return;
+            }
+            
+            stato.rotoloCorrente = idx;
+            const rotolo = stato.rotoli[idx];
+            
+            document.getElementById('rotoloForm').style.display = 'block';
+            document.getElementById('rotoloTitolo').textContent = `Rotolo #${idx + 1}`;
+            document.getElementById('rotoloStatus').textContent = rotolo.compilato ? '✓ Compilato' : '⚠️ Da compilare';
+            document.getElementById('rotoloStatus').style.color = rotolo.compilato ? 'var(--success)' : 'var(--warning)';
+            
+            // Popola campi
+            document.getElementById('codiceBarre').value = rotolo.codiceBarre || '';
+            document.getElementById('peso').value = rotolo.peso || '';
+            document.getElementById('mq').value = rotolo.mq || '';
+            document.getElementById('spessore').value = rotolo.spessore || '';
+            document.getElementById('larghezza').value = rotolo.larghezza || '';
+            document.getElementById('lunghezza').value = rotolo.lunghezza || '';
+            
+            // Popola descrizioni
+            const fornitore = document.getElementById('fornitore').value;
+            const descSelect = document.getElementById('descrizione');
+            descSelect.innerHTML = '<option value="">Seleziona descrizione...</option>';
+            
+            if (databaseFornitori[fornitore]) {
+                databaseFornitori[fornitore].descrizioni.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    if (rotolo.descrizione === d) opt.selected = true;
+                    descSelect.appendChild(opt);
                 });
             }
             
-            renderColli();
+            // Popola colori
+            aggiornaColore();
         }
         
-        function aggiungiCollo() {
-            stato.numColli++;
-            document.getElementById('numColli').value = stato.numColli;
-            stato.datiOCR.push({
-                codice: '', mq: 0, peso: 0, barcode: '',
-                spessore: 0, larghezza: 0, lunghezza: 0,
-                colore: '', nome_foto: ''
-            });
-            renderColli();
-        }
-        
-        function renderColli() {
-            const container = document.getElementById('colliContainer');
+        function aggiornaColore() {
+            const fornitore = document.getElementById('fornitore').value;
+            const descrizione = document.getElementById('descrizione').value;
+            const colSelect = document.getElementById('codiceColore');
             
-            container.innerHTML = stato.colli.map((collo, idx) => `
-                <div class="collo-card">
-                    <div class="collo-header">
-                        <span class="collo-number">📦 Collo ${idx + 1}</span>
-                        <button class="btn-secondary" onclick="rimuoviCollo(${idx})" 
-                                style="padding: 5px 10px; border-radius: 5px; border: none; background: #dc3545; color: white; cursor: pointer;">
-                            🗑️
-                        </button>
-                    </div>
-                    
-                    <div class="two-cols">
-                        <div class="input-group">
-                            <label>🏷️ Codice:</label>
-                            <input type="text" id="collo_codice_${idx}" value="${collo.codice || ''}" 
-                                   onchange="aggiornaCollo(${idx}, 'codice', this.value)">
-                        </div>
-                        <div class="input-group">
-                            <label>📐 MQ:</label>
-                            <input type="number" step="0.01" id="collo_mq_${idx}" value="${collo.mq || 0}" 
-                                   onchange="aggiornaCollo(${idx}, 'mq', parseFloat(this.value))">
-                        </div>
-                    </div>
-                    
-                    <div class="two-cols">
-                        <div class="input-group">
-                            <label>⚖️ Peso (KG):</label>
-                            <input type="number" id="collo_peso_${idx}" value="${collo.peso || 0}" 
-                                   onchange="aggiornaCollo(${idx}, 'peso', parseInt(this.value))">
-                        </div>
-                        <div class="input-group">
-                            <label>📊 Barcode:</label>
-                            <input type="text" id="collo_barcode_${idx}" value="${collo.barcode || ''}" 
-                                   onchange="aggiornaCollo(${idx}, 'barcode', this.value)">
-                        </div>
-                    </div>
-                    
-                    <details style="margin-top: 10px;">
-                        <summary style="cursor: pointer; color: var(--primary); font-weight: bold;">
-                            🔍 Dettagli Aggiuntivi
-                        </summary>
-                        <div style="margin-top: 10px;">
-                            <div class="two-cols">
-                                <div class="input-group">
-                                    <label>📏 Spessore (mm):</label>
-                                    <input type="number" step="0.1" id="collo_spessore_${idx}" value="${collo.spessore || 0}" 
-                                           onchange="aggiornaCollo(${idx}, 'spessore', parseFloat(this.value))">
-                                </div>
-                                <div class="input-group">
-                                    <label>↔️ Larghezza (mm):</label>
-                                    <input type="number" id="collo_larghezza_${idx}" value="${collo.larghezza || 0}" 
-                                           onchange="aggiornaCollo(${idx}, 'larghezza', parseInt(this.value))">
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>↕️ Lunghezza (m):</label>
-                                <input type="number" step="0.1" id="collo_lunghezza_${idx}" value="${collo.lunghezza || 0}" 
-                                       onchange="aggiornaCollo(${idx}, 'lunghezza', parseFloat(this.value))">
-                            </div>
-                            <div class="input-group">
-                                <label>🎨 Colore:</label>
-                                <input type="text" id="collo_colore_${idx}" value="${collo.colore || ''}" 
-                                       onchange="aggiornaCollo(${idx}, 'colore', this.value)">
-                            </div>
-                        </div>
-                    </details>
-                </div>
-            `).join('');
-        }
-        
-        function aggiornaCollo(idx, campo, valore) {
-            if (!stato.colli[idx]) stato.colli[idx] = {};
-            stato.colli[idx][campo] = valore;
-        }
-        
-        function rimuoviCollo(idx) {
-            if (stato.numColli > 1) {
-                stato.numColli--;
-                document.getElementById('numColli').value = stato.numColli;
-                stato.colli.splice(idx, 1);
-                stato.datiOCR.splice(idx, 1);
-                renderColli();
+            colSelect.innerHTML = '<option value="">Seleziona colore...</option>';
+            
+            if (databaseFornitori[fornitore]) {
+                databaseFornitori[fornitore].colori.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    colSelect.appendChild(opt);
+                });
             }
         }
         
+        function salvaRotoloCorrente() {
+            const idx = stato.rotoloCorrente;
+            
+            stato.rotoli[idx].codiceBarre = document.getElementById('codiceBarre').value;
+            stato.rotoli[idx].peso = parseInt(document.getElementById('peso').value) || 0;
+            stato.rotoli[idx].mq = parseFloat(document.getElementById('mq').value) || 0;
+            stato.rotoli[idx].spessore = parseFloat(document.getElementById('spessore').value) || 0;
+            stato.rotoli[idx].larghezza = parseInt(document.getElementById('larghezza').value) || 0;
+            stato.rotoli[idx].lunghezza = parseFloat(document.getElementById('lunghezza').value) || 0;
+            stato.rotoli[idx].descrizione = document.getElementById('descrizione').value;
+            stato.rotoli[idx].colore = document.getElementById('codiceColore').value;
+            
+            // Verifica se compilato
+            stato.rotoli[idx].compilato = stato.rotoli[idx].peso > 0 && stato.rotoli[idx].mq > 0;
+            
+            // Vai al prossimo rotolo
+            if (idx < stato.rotoli.length - 1) {
+                document.getElementById('rotoloCorrente').value = idx + 1;
+                mostraRotoloSelezionato();
+            } else {
+                // Verifica se tutti compilati
+                const tuttiCompilati = stato.rotoli.every(r => r.compilato);
+                if (tuttiCompilati) {
+                    stato.step = 4;
+                    aggiornaUI();
+                } else {
+                    alert('Completa tutti i rotoli prima di procedere!');
+                }
+            }
+            
+            popolaSelectRotoli();
+        }
+        
         // ============================================
-        // RIEPILOGO E EXPORT
+        // STEP 4 - ESPORTAZIONE
         // ============================================
         function aggiornaRiepilogo() {
-            // Assicura che i dati dei colli siano aggiornati
-            for (let i = 0; i < stato.numColli; i++) {
-                if (!stato.colli[i]) stato.colli[i] = {};
-                
-                // Copia dati OCR se disponibili e il campo è vuoto
-                const ocr = stato.datiOCR[i] || {};
-                if (!stato.colli[i].codice && ocr.codice) stato.colli[i].codice = ocr.codice;
-                if (!stato.colli[i].mq && ocr.mq) stato.colli[i].mq = ocr.mq;
-                if (!stato.colli[i].peso && ocr.peso) stato.colli[i].peso = ocr.peso;
-                if (!stato.colli[i].barcode && ocr.barcode) stato.colli[i].barcode = ocr.barcode;
-                if (!stato.colli[i].spessore && ocr.spessore) stato.colli[i].spessore = ocr.spessore;
-                if (!stato.colli[i].larghezza && ocr.larghezza) stato.colli[i].larghezza = ocr.larghezza;
-                if (!stato.colli[i].colore && ocr.colore) stato.colli[i].colore = ocr.colore;
-            }
+            let totMQ = 0, totPeso = 0, totLinea1 = 0;
             
-            // Calcola totali
-            let totMQ = 0, totPeso = 0;
-            for (let collo of stato.colli) {
-                totMQ += parseFloat(collo.mq) || 0;
-                totPeso += parseInt(collo.peso) || 0;
-            }
+            stato.rotoli.forEach(r => {
+                totMQ += r.mq || 0;
+                totPeso += r.peso || 0;
+                if (r.larghezza < 2000) totLinea1++;
+            });
             
-            document.getElementById('totColli').textContent = stato.numColli;
+            document.getElementById('totRotoli').textContent = stato.rotoli.length;
             document.getElementById('totMQ').textContent = totMQ.toFixed(2);
             document.getElementById('totPeso').textContent = totPeso;
+            document.getElementById('totLinea1').textContent = totLinea1;
             
-            // Genera tabella preview
-            const dataArrivo = document.getElementById('dataArrivo').value;
+            // Genera tabella
             const fornitore = document.getElementById('fornitore').value;
+            const dataArrivo = document.getElementById('dataArrivo').value;
             
             let tableHTML = `
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Codice</th>
+                            <th>Cod.Barre</th>
+                            <th>Peso</th>
                             <th>MQ</th>
-                            <th>KG</th>
-                            <th>Barcode</th>
+                            <th>Largh.</th>
+                            <th>Linea</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
             
-            stato.colli.forEach((collo, idx) => {
+            stato.rotoli.forEach((r, idx) => {
+                const linea = r.larghezza < 2000 ? '1' : '2';
                 tableHTML += `
                     <tr>
                         <td>${idx + 1}</td>
-                        <td>${collo.codice || '-'}</td>
-                        <td>${collo.mq || 0}</td>
-                        <td>${collo.peso || 0}</td>
-                        <td>${collo.barcode || '-'}</td>
+                        <td>${r.codiceBarre || '-'}</td>
+                        <td>${r.peso || 0}</td>
+                        <td>${r.mq || 0}</td>
+                        <td>${r.larghezza || 0}</td>
+                        <td>${linea}</td>
                     </tr>
                 `;
             });
@@ -780,95 +1085,39 @@
             document.getElementById('tabellaPreview').innerHTML = tableHTML;
         }
         
-        // ============================================
-        // ESPORTAZIONE
-        // ============================================
         function esportaExcel() {
-            aggiornaRiepilogo();
-            
-            const dataArrivo = document.getElementById('dataArrivo').value;
             const fornitore = document.getElementById('fornitore').value;
+            const dataArrivo = document.getElementById('dataArrivo').value;
             const note = document.getElementById('note').value;
             
-            // Prepara dati per Excel
-            const dati = stato.colli.map((collo, idx) => ({
-                'Foto': stato.foto[idx]?.nome || '',
-                'Codice': collo.codice || '',
-                'MQ': collo.mq || 0,
-                'Peso (KG)': collo.peso || 0,
-                'Fornitore': fornitore,
-                'Data Arrivo': dataArrivo,
-                'Barcode': collo.barcode || '',
-                'Spessore': collo.spessore || 0,
-                'Larghezza': collo.larghezza || 0,
-                'Lunghezza': collo.lunghezza || 0,
-                'Colore': collo.colore || '',
-                'Note': note
+            // FORMATO RICHIESTO:
+            // Codice a barre | Produttore/Fornitore | Spessore dichiarato | Arrivo | Descrizione | Codice Colore | Peso | Metri Quadri | Terminato | Linea
+            const dati = stato.rotoli.map((r, idx) => ({
+                'Codice a barre': r.codiceBarre || '',
+                'Produttore/Fornitore': fornitore,
+                'Spessore dichiarato': r.spessore || '',
+                'Arrivo': dataArrivo,
+                'Descrizione': r.descrizione || '',
+                'Codice Colore': r.colore || '',
+                'Peso': r.peso || 0,
+                'Metri Quadri': r.mq || 0,
+                'Terminato': '',
+                'Linea': r.larghezza < 2000 ? '1' : '2'
             }));
             
-            // Crea workbook
             const ws = XLSX.utils.json_to_sheet(dati);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Arrivi');
             
-            // Scarica
-            const nomeFile = `arrivi_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.xlsx`;
+            const nomeFile = `arrivi_${dataArrivo.replace(/-/g, '')}_${Date.now()}.xlsx`;
             XLSX.writeFile(wb, nomeFile);
-        }
-        
-        async function salvaInCloud() {
-            aggiornaRiepilogo();
             
-            const dataArrivo = document.getElementById('dataArrivo').value;
-            const fornitore = document.getElementById('fornitore').value;
-            const note = document.getElementById('note').value;
-            
-            // Prepara record per Supabase
-            const record = {
-                data_arrivo: dataArrivo,
-                fornitore: fornitore,
-                note: note,
-                num_colli: stato.numColli,
-                totale_mq: parseFloat(document.getElementById('totMQ').textContent),
-                totale_peso: parseInt(document.getElementById('totPeso').textContent),
-                colli_dati: JSON.stringify(stato.colli),
-                created_at: new Date().toISOString()
-            };
-            
-            mostraLoading('Salvataggio in cloud...');
-            
-            try {
-                // Qui dovrai aggiungere la chiamata Supabase
-                // const { data, error } = await supabase.from('arrivi_merce').insert([record]);
-                
-                // Per ora simuliamo
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                nascondiLoading();
-                alert('✅ Dati salvati nel cloud! (Integrazione Supabase da completare)');
-                
-            } catch (error) {
-                nascondiLoading();
-                console.error('Errore salvataggio:', error);
-                alert('❌ Errore durante il salvataggio.');
-            }
+            alert('✅ File Excel scaricato!');
         }
         
         function nuovoCarico() {
-            if (confirm('Vuoi iniziare un nuovo carico? I dati attuali verranno cancellati.')) {
-                stato.foto = [];
-                stato.datiOCR = [];
-                stato.numColli = 1;
-                stato.colli = [];
-                
-                document.getElementById('numColli').value = 1;
-                document.getElementById('fornitore').value = '';
-                document.getElementById('note').value = '';
-                document.getElementById('dataArrivo').valueAsDate = new Date();
-                
-                aggiornaFotoGrid();
-                renderColli();
-                openTab('foto');
+            if (confirm('Vuoi iniziare un nuovo carico?')) {
+                location.reload();
             }
         }
         
@@ -877,6 +1126,8 @@
         // ============================================
         function mostraLoading(testo) {
             document.getElementById('loading-text').textContent = testo;
+            document.getElementById('loading-progress').textContent = '0%';
+            document.getElementById('progress-fill').style.width = '0%';
             document.getElementById('loading-overlay').style.display = 'flex';
         }
         
