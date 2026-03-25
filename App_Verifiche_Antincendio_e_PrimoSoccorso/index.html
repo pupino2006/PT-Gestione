@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verifiche PT</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#004a99">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PT Verifiche">
+    <link rel="apple-touch-icon" href="pt.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { 
+            --primary: #004a99; 
+            --secondary: #8b98a7; 
+            --bg: #f0f2f5; 
+            --white: #ffffff; 
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: #333; 
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .header-logo { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+            background: var(--white); 
+            border-bottom: 1px solid #ddd; 
+        }
+        .header-logo img { height: 50px; }
+
+        .btn-home-fixed { 
+            position: fixed; 
+            top: 15px; 
+            left: 15px; 
+            z-index: 1001; 
+            background: var(--primary); 
+            color: white; 
+            border: 2px solid white; 
+            padding: 8px 15px; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            display: none; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+
+        .tabs { 
+            display: flex; 
+            background: var(--primary); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+        .tab-btn { 
+            flex: 1; 
+            padding: 15px 5px; 
+            border: none; 
+            background: none; 
+            color: rgba(255,255,255,0.7); 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            border-bottom: 3px solid transparent; 
+            font-size: 0.8rem;
+        }
+        .tab-btn.active { 
+            color: white; 
+            border-bottom-color: white; 
+            background: rgba(255,255,255,0.1); 
+        }
+
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--primary); font-size: 0.85rem; }
+        .input-group select, .input-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+
+        .card-verifica { 
+            background: var(--white); 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 12px; 
+            border-left: 6px solid var(--primary); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+        }
+        .domanda-testo { font-weight: 600; display: block; margin-bottom: 12px; line-height: 1.4; color: #444; }
+        .opzioni { display: flex; gap: 30px; margin-bottom: 15px; }
+        .opzioni label { display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; }
+        
+        .sezione-titolo { 
+            background: var(--primary); 
+            color: white; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin: 30px 0 15px; 
+            text-align: center; 
+            font-weight: bold; 
+            text-transform: uppercase;
+        }
+
+        .signature-container { 
+            border: 2px dashed #ccc; 
+            background: #fff; 
+            margin-top: 10px; 
+            border-radius: 8px; 
+            touch-action: none;
+        }
+        .signature-pad-canvas { 
+            width: 100%; 
+            height: 180px; 
+            display: block; 
+        }
+
+        .btn-main { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        
+        .btn-clear { 
+            margin-top: 8px; 
+            background: none; 
+            border: 1px solid var(--danger); 
+            color: var(--danger); 
+            padding: 10px; 
+            border-radius: 8px; 
+            width: 100%; 
+            font-weight: bold;
+        }
+        
+        .btn-foto { 
+            background: #f8f9fa; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 12px; 
+            width: 100%; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            color: #555;
+            font-weight: bold;
+        }
+        .area-note { 
+            width: 100%; 
+            height: 70px; 
+            margin-top: 12px; 
+            border-radius: 8px; 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            resize: none;
+        }
+
+        .photo-preview { display: none; margin-top: 10px; border: 2px solid var(--success); border-radius: 8px; overflow: hidden; }
+        .photo-preview img { width: 100%; display: block; }
+
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay">
+        <div style="font-size: 2rem; margin-bottom: 20px;">⏳</div>
+        <div id="loading-text">Generazione Report e Invio Mail...</div>
+    </div>
+
+    <button id="btnHomeFisso" class="btn-home-fixed" onclick="tornaAllaHome()">🏠 HOME</button>
+
+    <div class="header-logo">
+        <img id="mainLogo" src="pt.png" alt="Logo PT">
+    </div>
+
+    <div id="home-screen" class="container" style="text-align: center; padding-top: 50px;">
+        <h2 style="color: var(--primary);">Verifiche Periodiche</h2>
+        <p style="color: var(--secondary);">Gestione PT S.r.l.</p>
+        
+        <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px;">
+            <button onclick="mostraApp('antincendio')" class="btn-main" style="background: #dc3545;">🔥 VERIFICA ANTINCENDIO</button>
+            <button onclick="mostraApp('primo_soccorso')" class="btn-main" style="background: #28a745;">🏥 VERIFICA PRIMO SOCCORSO</button>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ddd;">
+                <p style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 15px;">ESPORTAZIONE DATI</p>
+                <button onclick="esportaTabella('antincendio')" class="btn-main" style="background: #17a2b8;">📊 ESPORTA ANTINCENDIO (Excel)</button>
+                <button onclick="esportaTabella('primo_soccorso')" class="btn-main" style="background: #17a2b8;">📊 ESPORTA PRIMO SOCCORSO (Excel)</button>
+                <button onclick="esportaTabella('entrambe')" class="btn-main" style="background: #6c757d;">📊 ESPORTA TUTTO</button>
+            </div>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ddd;">
+                <p style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 15px;">ARCHIVIO</p>
+                <button onclick="caricaStorico('antincendio')" class="btn-main" style="background: var(--secondary);">📂 STORICO ANTINCENDIO</button>
+                <button onclick="caricaStorico('primo_soccorso')" class="btn-main" style="background: var(--secondary);">📂 STORICO PRIMO SOCCORSO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-interface" style="display:none;">
+        <nav class="tabs">
+            <button class="tab-btn" id="btn-tab-info" onclick="openTab(event, 'tab-info')">📋 INFO</button>
+            <button class="tab-btn" id="btn-tab-check" onclick="openTab(event, 'tab-check')">✅ CHECKLIST</button>
+            <button class="tab-btn" id="btn-tab-invio" onclick="openTab(event, 'tab-invio')">✍️ FIRMA</button>
+        </nav>
+
+        <div id="tipo-modulo-badge" style="text-align: center; padding: 10px; background: #e9ecef; font-weight: bold; color: #666; font-size: 0.9rem;"></div>
+
+        <div id="tab-info" class="tab-content container">
+            <div class="input-group">
+                <label>OPERATORE 1</label>
+                <select id="operatore_1">
+                    <option value="">Seleziona...</option>
+                    <option value="Francesco Marcone">Francesco Marcone</option>
+                    <option value="Giuliano Di Carlo">Giuliano Di Carlo</option>
+                    <option value="Sabatino Lalli">Sabatino Lalli</option>
+                    <option value="Giuseppe Marcone">Giuseppe Marcone</option>
+                    <option value="Petitta Andrea">Petitta Andrea</option>
+                    <option value="Ripà Luca">Ripà Luca</option>
+                    <option value="Pannelli Gianluca">Pannelli Gianluca</option>
+                    <option value="D'Addazio Julio">D'Addazio Julio</option>  
+                    <option value="Fidanza Giacinto">Fidanza Giacinto</option> 
+                    <option value="Olivieri Matteo">Olivieri Matteo</option> 
+                    <option value="D'Amario Angelo">D'Amario Angelo</option>
+                    <option value="D'Amario Lorenzo">D'Amario Lorenzo</option> 
+                </select>
+            </div>
+            <div class="input-group">
+                <label>OPERATORE 2 (Collaboratore/Ospite)</label>
+                <select id="operatore_2">
+                    <option value="">Nessuno</option>
+                    <option value="Francesco Marcone">Francesco Marcone</option>
+                    <option value="Giuliano Di Carlo">Giuliano Di Carlo</option>
+                    <option value="Sabatino Lalli">Sabatino Lalli</option>
+                    <option value="Giuseppe Marcone">Giuseppe Marcone</option>
+                    <option value="Petitta Andrea">Petitta Andrea</option>
+                    <option value="Ripà Luca">Ripà Luca</option>
+                    <option value="Pannelli Gianluca">Pannelli Gianluca</option>
+                    <option value="D'Addazio Julio">D'Addazio Julio</option>  
+                    <option value="Fidanza Giacinto">Fidanza Giacinto</option> 
+                    <option value="Olivieri Matteo">Olivieri Matteo</option> 
+                    <option value="D'Amario Angelo">D'Amario Angelo</option>
+                    <option value="D'Amario Lorenzo">D'Amario Lorenzo</option> 
+                </select>
+            </div>
+            <div class="input-group">
+                <label>DATA INTERVENTO</label>
+                <input type="date" id="dataVerifica">
+            </div>
+            <button class="btn-main" onclick="openTab(null, 'tab-check')" style="margin-top: 20px;">AVANTI ➔</button>
+        </div>
+
+        <div id="tab-check" class="tab-content container" style="display:none;">
+            <div id="checklist-container"></div>
+            <button class="btn-main" onclick="openTab(null, 'tab-invio')" style="margin-top: 20px; background: var(--secondary);">VAI ALLA FIRMA ➔</button>
+        </div>
+
+        <div id="tab-invio" class="tab-content container" style="display:none;">
+            <h3 style="color: var(--primary); margin-bottom: 5px;">Firma Operatore 1</h3>
+            <div class="signature-container">
+                <canvas id="signature-pad-1" class="signature-pad-canvas"></canvas>
+            </div>
+            <button class="btn-clear" onclick="cancellaFirma(1)">CANCELLA FIRMA 1</button>
+
+            <h3 style="color: var(--primary); margin-top: 30px; margin-bottom: 5px;">Firma Operatore 2</h3>
+            <div class="signature-container">
+                <canvas id="signature-pad-2" class="signature-pad-canvas"></canvas>
+            </div>
+            <button class="btn-clear" onclick="cancellaFirma(2)">CANCELLA FIRMA 2</button>
+            
+            <button id="btnInvia" class="btn-main" style="background: var(--success); margin-top: 50px;" onclick="inviaVerifica()">🚀 SALVA E INVIA</button>
+            <p style="font-size: 11px; text-align: center; color: #888; margin-top: 15px;">Il PDF verrà inviato automaticamente a geom.rip@gmail.com</p>
+        </div>
+    </div>
+
+    <div id="tab-storico" class="container" style="display:none;">
+        <div id="lista-verifiche"></div>
+        <button onclick="tornaAllaHome()" class="btn-main" style="background: var(--secondary); margin-top: 20px;">TORNA ALLA HOME</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+    // Logo base64 per i PDF generati lato server
+    let logoBase64 = "";
+
+    // Carica logo come base64 all'avvio
+    window.addEventListener('DOMContentLoaded', () => {
+        const logoImg = document.getElementById('mainLogo');
+        if (logoImg) {
+            // Se è già un data URL, usa quello
+            if (logoImg.src.startsWith('data:')) {
+                logoBase64 = logoImg.src;
+            } else {
+                // Altrimenti carica l'immagine
+                const tempImg = new Image();
+                tempImg.crossOrigin = "anonymous";
+                tempImg.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = tempImg.width;
+                    canvas.height = tempImg.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(tempImg, 0, 0);
+                    logoBase64 = canvas.toDataURL('image/png');
+                    console.log("Logo caricato: " + logoBase64.substring(0, 50) + "...");
+                };
+                tempImg.src = logoImg.src;
+            }
+        }
+    });
+</script>
+</body>
+</html>

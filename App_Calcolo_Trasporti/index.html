@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannelli Termici - Trasporti</title>
+    <style>
+        :root { 
+            --blue: #005aab; 
+            --light-blue: #e3f2fd; 
+            --hover-blue: #bbdefb; 
+            --gray: #f4f7f6; 
+            --admin: #2c3e50; 
+        }
+        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .header img { max-width: 100%; height: auto; max-height: 120px; display: block; margin: 0 auto; }
+
+        h1 { font-size: 18px; color: var(--blue); text-transform: uppercase; text-align: center; }
+        .step { display: none; }
+        .step.active { display: block; }
+        .nav-bar { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        
+        .btn-small { background: #ddd; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        
+        .card { 
+            background-color: var(--light-blue); 
+            border: 2px solid #c2e3f7; 
+            padding: 20px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            transition: all 0.2s ease; 
+            color: var(--blue);
+        }
+        .card:hover { background-color: var(--hover-blue); transform: translateY(-2px); }
+        .card.admin-card { border-color: var(--admin); color: var(--admin); background-color: #f8f9fa; }
+
+        .btn-main { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; }
+        .btn-print { background: #27ae60; margin-top: 10px; }
+        
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; margin-bottom: 10px; }
+        .suggestions { position: absolute; width: 100%; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .suggestions div { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .tag { display: inline-block; background: var(--blue); color: white; padding: 5px 10px; border-radius: 5px; margin: 5px 5px 0 0; font-size: 13px; }
+        
+        .result { background: #eef9ff; padding: 20px; border-radius: 10px; border-left: 5px solid var(--blue); margin-top: 20px; line-height: 1.5; }
+        .price-box { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
+
+        @media print {
+            .nav-bar, .btn-main, .btn-small, .btn-print, .search-box { display: none !important; }
+            .container { box-shadow: none; border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="nav-bar">
+        <button class="btn-small" onclick="location.reload()">🏠 Home</button>
+        <button class="btn-small" onclick="indietro()">⬅️ Indietro</button>
+    </div>
+
+    <div class="header">
+        <img src="logo-icon.png" alt="Logo">
+    </div>
+
+    <div id="stepHome" class="step active">
+        <h1>Seleziona Accesso</h1>
+        <div class="card" onclick="setRuolo('commerciale')"><h3>ACCESSO COMMERCIALE</h3></div>
+        <div class="card admin-card" onclick="mostraLogin()"><h3>ACCESSO AMMINISTRATORE</h3></div>
+    </div>
+
+    <div id="stepLogin" class="step">
+        <h1>Login Amministratore</h1>
+        <input type="password" id="passAdmin" placeholder="Inserisci Password">
+        <button class="btn-main" onclick="verificaLogin()" style="background:var(--admin)">Accedi</button>
+    </div>
+
+    <div id="step1" class="step">
+        <h1>Tipo di Carico</h1>
+        <div class="card" onclick="setTipo('completo')"><h3>CARICO COMPLETO</h3></div>
+        <div class="card" onclick="setTipo('parziale')"><h3>CARICO PARZIALE</h3></div>
+    </div>
+
+    <div id="stepMetri" class="step">
+        <h1>Lunghezza Merce</h1>
+        <select id="metri">
+            <option value="3">3 Metri (50%)</option>
+            <option value="4">4 Metri (57%)</option>
+            <option value="5">5 Metri (64%)</option>
+            <option value="6">6 Metri (71%)</option>
+            <option value="7">7 Metri (78%)</option>
+            <option value="8">8 Metri (85%)</option>
+            <option value="9">9 Metri (92%)</option>
+            <option value="10">10 Metri (99%)</option>
+        </select>
+        <button class="btn-main" onclick="vaiAScarico()" style="margin-top:20px;">Avanti</button>
+    </div>
+
+    <div id="stepScarico" class="step">
+        <h1>Destinazione</h1>
+        <div class="card" onclick="setScarico('singolo')"><h3>SCARICO SINGOLO</h3></div>
+        <div class="card" onclick="setScarico('multiplo')"><h3>SCARICO MULTIPLO</h3></div>
+    </div>
+
+    <div id="stepConfig" class="step">
+        <h1 id="configTitle">Seleziona Province</h1>
+        <div class="search-box" style="position:relative;">
+            <input type="text" id="cerca" placeholder="Cerca Provincia..." oninput="cercaProv(this.value)">
+            <div id="suggerimenti" class="suggestions"></div>
+        </div>
+        <div id="listaSelezionate" style="margin: 15px 0;"></div>
+        <button class="btn-main" onclick="calcola()">Calcola Preventivo</button>
+    </div>
+
+    <div id="stepResult" class="step">
+        <div id="dettaglio" class="result"></div>
+        <button class="btn-main btn-print" onclick="window.print()">📄 SALVA / STAMPA PDF</button>
+        <button class="btn-main" style="margin-top:15px; background:#666;" onclick="location.reload()">Nuovo Calcolo</button>
+    </div>
+</div>
+
+<script>
+const db = [
+    {n: "Aosta", pv: "AO", b: 1075, t: 0, lat: 45.734, lon: 7.321},
+    {n: "Alessandria", pv: "AL", b: 730, t: 915, lat: 44.912, lon: 8.615},
+    {n: "Novara", pv: "NO", b: 770, t: 860, lat: 45.446, lon: 8.620},
+    {n: "Asti", pv: "AT", b: 840, t: 920, lat: 44.901, lon: 8.207},
+    {n: "Vercelli", pv: "VC", b: 800, t: 880, lat: 45.323, lon: 8.415},
+    {n: "Biella", pv: "BI", b: 850, t: 935, lat: 45.563, lon: 8.057},
+    {n: "Torino", pv: "TO", b: 925, t: 1005, lat: 45.070, lon: 7.686},
+    {n: "Cuneo", pv: "CN", b: 980, t: 1060, lat: 44.389, lon: 7.547},
+    {n: "Mantova", pv: "MN", b: 640, t: 715, lat: 45.156, lon: 10.791},
+    {n: "Cremona", pv: "CR", b: 665, t: 750, lat: 45.133, lon: 10.022},
+    {n: "Brescia", pv: "BS", b: 720, t: 790, lat: 45.541, lon: 10.211},
+    {n: "Pavia", pv: "PV", b: 750, t: 815, lat: 45.184, lon: 9.158},
+    {n: "Milano", pv: "MI", b: 750, t: 840, lat: 45.464, lon: 9.189},
+    {n: "Monza-Brianza", pv: "MB", b: 750, t: 840, lat: 45.584, lon: 9.273},
+    {n: "Bergamo", pv: "BG", b: 750, t: 820, lat: 45.698, lon: 9.677},
+    {n: "Lecco", pv: "LC", b: 840, t: 975, lat: 45.856, lon: 9.397},
+    {n: "Como", pv: "CO", b: 840, t: 895, lat: 45.808, lon: 9.085},
+    {n: "Varese", pv: "VA", b: 885, t: 955, lat: 45.817, lon: 8.826},
+    {n: "Sondrio", pv: "SO", b: 960, t: 1060, lat: 46.170, lon: 9.871},
+    {n: "Trento", pv: "TN", b: 850, t: 845, lat: 46.074, lon: 11.121},
+    {n: "Bolzano", pv: "BZ", b: 960, t: 1060, lat: 46.498, lon: 11.354},
+    {n: "Pordenone", pv: "PN", b: 790, t: 1025, lat: 45.962, lon: 12.656},
+    {n: "Udine", pv: "UD", b: 800, t: 1000, lat: 46.071, lon: 13.237},
+    {n: "Gorizia", pv: "GO", b: 895, t: 1005, lat: 45.940, lon: 13.621},
+    {n: "Trieste", pv: "TS", b: 895, t: 975, lat: 45.649, lon: 13.776},
+    {n: "Rovigo", pv: "RO", b: 580, t: 640, lat: 45.070, lon: 11.790},
+    {n: "Padova", pv: "PD", b: 615, t: 695, lat: 45.406, lon: 11.876},
+    {n: "Verona", pv: "VR", b: 675, t: 705, lat: 45.438, lon: 10.991},
+    {n: "Vicenza", pv: "VI", b: 700, t: 790, lat: 45.547, lon: 11.546},
+    {n: "Venezia", pv: "VE", b: 655, t: 730, lat: 45.440, lon: 12.315},
+    {n: "Treviso", pv: "TV", b: 685, t: 765, lat: 45.666, lon: 12.245},
+    {n: "Belluno", pv: "BL", b: 780, t: 865, lat: 46.142, lon: 12.216},
+    {n: "La Spezia", pv: "SP", b: 800, t: 935, lat: 44.110, lon: 9.844},
+    {n: "Genova", pv: "GE", b: 900, t: 1005, lat: 44.405, lon: 8.946},
+    {n: "Savona", pv: "SV", b: 950, t: 1120, lat: 44.307, lon: 8.481},
+    {n: "Imperia", pv: "IM", b: 1000, t: 1035, lat: 43.886, lon: 8.041},
+    {n: "Rimini", pv: "RN", b: 460, t: 550, lat: 44.057, lon: 12.568},
+    {n: "Forli", pv: "FO", b: 480, t: 540, lat: 44.222, lon: 12.040},
+    {n: "Ravenna", pv: "RA", b: 480, t: 540, lat: 44.418, lon: 12.203},
+    {n: "Ferrara", pv: "FE", b: 530, t: 595, lat: 44.838, lon: 11.619},
+    {n: "Bologna", pv: "BO", b: 572, t: 615, lat: 44.494, lon: 11.342},
+    {n: "Modena", pv: "MO", b: 540, t: 615, lat: 44.647, lon: 10.925},
+    {n: "Reggio Emilia", pv: "RE", b: 615, t: 680, lat: 44.698, lon: 10.631},
+    {n: "Parma", pv: "PR", b: 600, t: 695, lat: 44.801, lon: 10.327},
+    {n: "Piacenza", pv: "PC", b: 685, t: 750, lat: 45.052, lon: 9.693},
+    {n: "Arezzo", pv: "AR", b: 515, t: 570, lat: 43.463, lon: 11.878},
+    {n: "Siena", pv: "SI", b: 565, t: 620, lat: 43.318, lon: 11.332},
+    {n: "Firenze", pv: "FI", b: 610, t: 680, lat: 43.769, lon: 11.255},
+    {n: "Grosseto", pv: "GR", b: 595, t: 640, lat: 42.763, lon: 11.111},
+    {n: "Prato", pv: "PO", b: 655, t: 0, lat: 43.877, lon: 11.102},
+    {n: "Pistoia", pv: "PT", b: 720, t: 835, lat: 43.933, lon: 10.916},
+    {n: "Lucca", pv: "LU", b: 760, t: 845, lat: 43.842, lon: 10.502},
+    {n: "Pisa", pv: "PI", b: 720, t: 845, lat: 43.708, lon: 10.403},
+    {n: "Livorno", pv: "LI", b: 665, t: 750, lat: 43.548, lon: 10.310},
+    {n: "Massa", pv: "MS", b: 790, t: 0, lat: 44.035, lon: 10.144},
+    {n: "Pesaro", pv: "PS", b: 460, t: 530, lat: 43.912, lon: 12.913},
+    {n: "Ancona", pv: "AN", b: 360, t: 440, lat: 43.615, lon: 13.518},
+    {n: "Macerata", pv: "MC", b: 335, t: 385, lat: 43.300, lon: 13.453},
+    {n: "Fermo", pv: "FM", b: 300, t: 375, lat: 43.161, lon: 13.718},
+    {n: "Ascoli Piceno", pv: "AP", b: 285, t: 360, lat: 42.853, lon: 13.576},
+    {n: "Terni", pv: "TR", b: 450, t: 645, lat: 42.563, lon: 12.641},
+    {n: "Perugia", pv: "PG", b: 450, t: 495, lat: 43.110, lon: 12.390},
+    {n: "Rieti", pv: "RI", b: 500, t: 550, lat: 42.404, lon: 12.859},
+    {n: "Roma", pv: "RM", b: 530, t: 605, lat: 41.890, lon: 12.496},
+    {n: "Latina", pv: "LT", b: 595, t: 595, lat: 41.467, lon: 12.903},
+    {n: "Frosinone", pv: "FR", b: 540, t: 585, lat: 41.639, lon: 13.341},
+    {n: "Teramo", pv: "TE", b: 190, t: 260, lat: 42.658, lon: 13.704},
+    {n: "Pescara", pv: "PE", b: 260, t: 400, lat: 42.461, lon: 14.214},
+    {n: "Chieti", pv: "CH", b: 310, t: 395, lat: 42.351, lon: 14.167},
+    {n: "L’Aquila", pv: "AQ", b: 310, t: 385, lat: 42.348, lon: 13.397},
+    {n: "Campobasso", pv: "CB", b: 535, t: 640, lat: 41.560, lon: 14.662},
+    {n: "Benevento", pv: "BN", b: 670, t: 745, lat: 41.130, lon: 14.777},
+    {n: "Caserta", pv: "CE", b: 655, t: 730, lat: 41.073, lon: 14.331},
+    {n: "Napoli", pv: "NA", b: 720, t: 855, lat: 40.851, lon: 14.268},
+    {n: "Salerno", pv: "SA", b: 850, t: 885, lat: 40.677, lon: 14.765},
+    {n: "Foggia", pv: "FG", b: 550, t: 630, lat: 41.462, lon: 15.544},
+    {n: "Bari", pv: "BA", b: 720, t: 690, lat: 41.117, lon: 16.871},
+    {n: "Taranto", pv: "TA", b: 820, t: 850, lat: 40.464, lon: 17.247},
+    {n: "Brindisi", pv: "BR", b: 850, t: 1080, lat: 40.632, lon: 17.936},
+    {n: "Lecce", pv: "LE", b: 900, t: 1045, lat: 40.351, lon: 18.174}
+];
+
+
+const SEDE = { lat: 42.6710, lon: 14.0150 }; 
+let state = { ruolo: '', tipo: '', metri: 0, scarico: '', province: [] };
+
+function setRuolo(r) { state.ruolo = r; mostra('step1'); }
+function mostraLogin() { mostra('stepLogin'); }
+function verificaLogin() {
+    if(document.getElementById('passAdmin').value === '2026') {
+        state.ruolo = 'amministratore';
+        mostra('step1');
+    } else { alert("Password Errata"); }
+}
+
+function setTipo(t) { state.tipo = t; mostra(t === 'parziale' ? 'stepMetri' : 'stepScarico'); }
+function vaiAScarico() { state.metri = document.getElementById('metri').value; mostra('stepScarico'); }
+function setScarico(s) { 
+    state.scarico = s; 
+    document.getElementById('configTitle').innerText = s === 'singolo' ? 'Destinazione' : 'Ordine di Scarico'; 
+    mostra('stepConfig'); 
+}
+
+function cercaProv(v) {
+    const sug = document.getElementById('suggerimenti');
+    if(!v) { sug.style.display='none'; return; }
+    const filtrate = db.filter(p => p.n.toLowerCase().includes(v.toLowerCase()));
+    sug.innerHTML = filtrate.map(p => `<div onclick="seleziona('${p.n}')">${p.n}</div>`).join('');
+    sug.style.display = 'block';
+}
+
+function seleziona(nome) {
+    const p = db.find(x => x.n === nome);
+    if(state.scarico === 'singolo') {
+        state.province = [p];
+    } else {
+        if(!state.province.find(x => x.n === nome)) state.province.push(p);
+    }
+    document.getElementById('suggerimenti').style.display = 'none';
+    document.getElementById('cerca').value = '';
+    document.getElementById('listaSelezionate').innerHTML = state.province.map(x => `<span class="tag">${x.n}</span>`).join('');
+}
+
+async function getKm(provinceList) {
+    let coords = `${SEDE.lon},${SEDE.lat}`;
+    provinceList.forEach(p => coords += `;${p.lon},${p.lat}`);
+    try {
+        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=false`);
+        const data = await res.json();
+        return data.routes[0].distance / 1000;
+    } catch { return 0; }
+}
+
+function getCoeff(m) {
+    const map = { "3": 0.50, "4": 0.57, "5": 0.64, "6": 0.71, "7": 0.78, "8": 0.85, "9": 0.92, "10": 0.99 };
+    return map[m] || 1;
+}
+
+async function calcola() {
+    if (state.province.length === 0) return alert("Seleziona una provincia");
+    document.getElementById('dettaglio').innerHTML = "Calcolo in corso...";
+    mostra('stepResult');
+
+    const kmReali = await getKm(state.province);
+    const kmMaggiorati = kmReali * 1.05;
+    const numScarichiExtra = state.province.length - 1;
+    
+    // Identifichiamo l'ultima destinazione (la finale)
+    const ultimaProv = state.province[state.province.length - 1];
+
+    let costoBosica = 0;
+    let costoTauro = 0;
+
+    if (state.tipo === 'parziale') {
+        const coeff = getCoeff(document.getElementById('metri').value);
+        
+        // Per i parziali usiamo il prezzo del completo come base
+        // Per scarico singolo: prima provincia, per multiplo: ultima provincia (destinazione finale)
+        const provRiferimento = (state.scarico === 'multiplo') 
+            ? state.province[state.province.length - 1] 
+            : state.province[0];
+        
+        const baseBosica = provRiferimento.b;
+        const baseTauro = provRiferimento.t;
+        
+        costoBosica = (baseBosica * coeff) + (numScarichiExtra * 30);
+        costoTauro = (baseTauro * coeff) + (numScarichiExtra * 40);
+    } else {
+        // CARICO COMPLETO
+        if (state.scarico === 'singolo') {
+            costoBosica = state.province[0].b;
+            costoTauro = state.province[0].t;
+        } else {
+            // MULTIPLO: Controllo clausola salvaguardia vs Destinazione Finale
+            let baseBosica = kmMaggiorati * 1.50;
+            let baseTauro = kmMaggiorati * 1.60;
+
+            // Se il calcolo a km è inferiore al prezzo fisso dell'ultima tappa, usa il prezzo fisso
+            if (baseBosica < ultimaProv.b) baseBosica = ultimaProv.b;
+            if (baseTauro < ultimaProv.t) baseTauro = ultimaProv.t;
+
+            // Aggiungi maggiorazioni scarichi extra
+            costoBosica = baseBosica + (numScarichiExtra * 30);
+            costoTauro = baseTauro + (numScarichiExtra * 40);
+        }
+    }
+
+    let html = `<h3>Riepilogo ${state.tipo.toUpperCase()}</h3>`;
+    html += `<p>Percorso: ${state.province.map(p => p.n).join(' ➔ ')}</p>`;
+    
+    // Mostra distanza per scarico multiplo o per parziali
+    if (state.scarico !== 'singolo' || state.tipo === 'parziale') {
+        html += `<p>Distanza totale (+5%): <b>${kmMaggiorati.toFixed(0)} km</b></p>`;
+    }
+    
+    if (state.tipo === 'parziale') {
+        const coeff = getCoeff(document.getElementById('metri').value);
+        const provRiferimento = (state.scarico === 'multiplo') 
+            ? state.province[state.province.length - 1] 
+            : state.province[0];
+        html += `<p>Lunghezza: <b>${state.metri} mt</b> (${(coeff * 100).toFixed(0)}% del completo)</p>`;
+        // Per commerciali mostra solo il prezzo più alto, per admin mostra entrambi
+        if (state.ruolo === 'amministratore') {
+            html += `<p>Prezzo completo riferimento: <b>€ ${provRiferimento.b.toFixed(2)}</b> / <b>€ ${provRiferimento.t.toFixed(2)}</b></p>`;
+        } else {
+            html += `<p>Prezzo completo riferimento: <b>€ ${Math.max(provRiferimento.b, provRiferimento.t).toFixed(2)}</b></p>`;
+        }
+    }
+    
+    if (numScarichiExtra > 0) html += `<p>Scarichi extra: ${numScarichiExtra}</p>`;
+    
+    html += `<hr>`;
+
+    if (state.ruolo === 'commerciale') {
+        html += `<div class="price-box"><strong>QUOTA TRASPORTO</strong> <span style="color:var(--blue); font-weight:bold;">€ ${Math.max(costoBosica, costoTauro).toFixed(2)}</span></div>`;
+    } else {
+        html += `
+            <div class="price-box"><strong>BOSICA</strong> <span style="font-weight:bold;">€ ${costoBosica.toFixed(2)}</span></div>
+            <div class="price-box"><strong>TAURO</strong> <span style="font-weight:bold;">€ ${costoTauro.toFixed(2)}</span></div>`;
+    }
+
+    document.getElementById('dettaglio').innerHTML = html;
+}
+
+function mostra(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function indietro() {
+    const steps = ['stepHome', 'stepLogin', 'step1', 'stepMetri', 'stepScarico', 'stepConfig', 'stepResult'];
+    let current = steps.findIndex(s => document.getElementById(s).classList.contains('active'));
+    if(current > 0) mostra(steps[current-1]);
+}
+</script>
+</body>
+</html>
