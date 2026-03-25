@@ -18,29 +18,44 @@ let supabaseClient;
 window.addEventListener('DOMContentLoaded', async () => {
     console.log("🚀 PT Gestione - Inizializzazione...");
     
+    // Assicurati che la libreria Supabase sia caricata
+    if (typeof supabase === 'undefined') {
+        console.error("❌ Libreria Supabase non caricata!");
+        alert("Errore: libreria Supabase non caricata. Ricarica la pagina.");
+        return;
+    }
+    
     // Inizializza Supabase
     supabaseClient = supabase.createClient(SB_URL, SB_KEY);
     
-    // Controlla sessione esistente
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    // Mostro subito il login (fallback)
+    mostraLogin();
     
-    if (session) {
-        mostraDashboard(session.user);
-    } else {
-        mostraLogin();
+    // Provo a controllare sessione esistente
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+            console.log("✅ Sessione trovata:", session.user.email);
+            mostraDashboard(session.user);
+        } else {
+            console.log("📝 Nessuna sessione - mostra login");
+            inizializzaAuthUI();
+        }
+    } catch (err) {
+        console.error("❌ Errore controllo sessione:", err);
+        inizializzaAuthUI();
     }
     
     // Gestisci cambiamenti stato auth
     supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log("📢 Evento auth:", event);
         if (event === 'SIGNED_IN' && session) {
             mostraDashboard(session.user);
         } else if (event === 'SIGNED_OUT') {
             mostraLogin();
         }
     });
-    
-    // Inizializza UI Auth di Supabase
-    inizializzaAuthUI();
 });
 
 
@@ -50,32 +65,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 function inizializzaAuthUI() {
     const container = document.getElementById('auth-container');
     
-    // Configurazione per il redirect
-    supabaseClient.auth.getSession().then(({ data }) => {
-        if (!data.session) {
-            // Mostra form di login se non c'è sessione
-            container.innerHTML = `
-                <form id="login-form" onsubmit="handleLogin(event)">
-                    <div style="margin-bottom: 15px;">
-                        <input type="email" id="email" placeholder="Email" required
-                               style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem;">
-                    </div>
-                    <div style="margin-bottom: 20px;">
-                        <input type="password" id="password" placeholder="Password" required
-                               style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem;">
-                    </div>
-                    <button type="submit" style="width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer;">
-                        🔐 Accedi
-                    </button>
-                </form>
-                <div id="auth-error" style="color: var(--danger); margin-top: 15px; display: none;"></div>
-                <p style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
-                    Accedi con le credenziali Supabase.<br>
-                    <a href="https://supabase.com/dashboard" target="_blank" style="color: var(--primary);">Gestisci utenti →</a>
-                </p>
-            `;
-        }
-    });
+    // MOSTRA SEMPRE il form di login - non aspettare la risposta dal server
+    container.innerHTML = `
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div style="margin-bottom: 15px;">
+                <input type="email" id="email" placeholder="Email" required
+                       style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <input type="password" id="password" placeholder="Password" required
+                       style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem;">
+            </div>
+            <button type="submit" id="login-btn" style="width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer;">
+                🔐 Accedi
+            </button>
+        </form>
+        <div id="auth-error" style="color: var(--danger); margin-top: 15px; display: none;"></div>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+            Accedi con le credenziali Supabase.<br>
+            <a href="https://supabase.com/dashboard" target="_blank" style="color: var(--primary);">Gestisci utenti →</a>
+        </p>
+    `;
+    
+    console.log("✅ Form login mostrato");
 }
 
 
