@@ -21,22 +21,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Inizializza Supabase
     supabaseClient = supabase.createClient(SB_URL, SB_KEY);
     
-    // MODALITÀ DEBUG: Salta login se c'è un utente demo nella localStorage
-    // Oppure usa il bypass per test
-    const bypassLogin = localStorage.getItem('pt_demo_mode');
-    
-    if (bypassLogin === 'true') {
-        // Modalità demo: mostra direttamente la dashboard
-        const demoUser = {
-            email: localStorage.getItem('pt_demo_email') || 'demo@pt.it',
-            user_metadata: {
-                full_name: localStorage.getItem('pt_demo_name') || 'Utente Demo'
-            }
-        };
-        mostraDashboard(demoUser);
-        return;
-    }
-    
     // Controlla sessione esistente
     const { data: { session } } = await supabaseClient.auth.getSession();
     
@@ -85,45 +69,13 @@ function inizializzaAuthUI() {
                     </button>
                 </form>
                 <div id="auth-error" style="color: var(--danger); margin-top: 15px; display: none;"></div>
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ddd;">
-                    <p style="font-size: 0.8rem; color: var(--secondary); text-align: center; margin-bottom: 10px;">
-                        Non hai un account?
-                    </p>
-                    <button onclick="attivaModalitaDemo()" style="width: 100%; padding: 12px; background: var(--warning); color: #333; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: bold; cursor: pointer;">
-                        🧪 Modalità Demo (Test)
-                    </button>
-                </div>
-                <p style="margin-top: 15px; font-size: 0.7rem; color: #999; text-align: center;">
-                    Per accedere serve un account Supabase.<br>
-                    <a href="#" onclick="apriSupabaseDashboard()" style="color: var(--primary);">Crea un utente qui →</a>
+                <p style="margin-top: 20px; font-size: 0.8rem; color: #666; text-align: center;">
+                    Accedi con le credenziali Supabase.<br>
+                    <a href="https://supabase.com/dashboard" target="_blank" style="color: var(--primary);">Gestisci utenti →</a>
                 </p>
             `;
         }
     });
-}
-
-// ============================================
-// MODALITÀ DEMO
-// ============================================
-function attivaModalitaDemo() {
-    // Attiva modalità demo nella localStorage
-    localStorage.setItem('pt_demo_mode', 'true');
-    localStorage.setItem('pt_demo_email', 'demo@pt.it');
-    localStorage.setItem('pt_demo_name', 'Utente Demo PT');
-    
-    // Ricarica la pagina per applicare
-    location.reload();
-}
-
-function disattivaModalitaDemo() {
-    localStorage.removeItem('pt_demo_mode');
-    localStorage.removeItem('pt_demo_email');
-    localStorage.removeItem('pt_demo_name');
-    location.reload();
-}
-
-function apriSupabaseDashboard() {
-    window.open('https://supabase.com/dashboard', '_blank');
 }
 
 
@@ -161,17 +113,9 @@ async function handleLogin(event) {
 // LOGOUT
 // ============================================
 async function logout() {
-    // Disattiva anche la modalità demo
-    const isDemoMode = localStorage.getItem('pt_demo_mode') === 'true';
-    localStorage.removeItem('pt_demo_mode');
-    localStorage.removeItem('pt_demo_email');
-    localStorage.removeItem('pt_demo_name');
-    
-    if (!isDemoMode) {
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) {
-            console.error("Errore logout:", error);
-        }
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        console.error("Errore logout:", error);
     }
     mostraLogin();
 }
