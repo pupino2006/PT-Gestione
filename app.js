@@ -130,21 +130,32 @@ async function logout() {
 // NAVIGAZIONE
 // ============================================
 function mostraLogin() {
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('app-viewer').style.display = 'none';
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+    const appViewer = document.getElementById('app-viewer');
+    
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (dashboard) dashboard.style.display = 'none';
+    if (appViewer) appViewer.style.display = 'none';
+    
     // Mostra di nuovo il form di login
     mostraFormLogin();
 }
 
 function mostraDashboard(user) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('app-viewer').style.display = 'none';
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+    const appViewer = document.getElementById('app-viewer');
+    const userName = document.getElementById('user-name');
+    const userEmail = document.getElementById('user-email');
+    
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (dashboard) dashboard.style.display = 'block';
+    if (appViewer) appViewer.style.display = 'none';
     
     // Mostra info utente
-    document.getElementById('user-name').textContent = user.user_metadata?.full_name || user.email;
-    document.getElementById('user-email').textContent = user.email;
+    if (userName) userName.textContent = user.user_metadata?.full_name || user.email;
+    if (userEmail) userEmail.textContent = user.email;
 }
 
 
@@ -152,10 +163,6 @@ function mostraDashboard(user) {
 // APERTURA APP ESTERNE
 // ============================================
 function apriApp(tipoApp) {
-    const iframe = document.getElementById('viewer-iframe');
-    const viewer = document.getElementById('app-viewer');
-    const title = document.getElementById('viewer-title');
-    
     // Percorsi alle app (cartelle con underscore su GitHub)
     const percorsiApp = {
         'verifiche': 'App_Verifiche_Antincendio_e_PrimoSoccorso/index.html',
