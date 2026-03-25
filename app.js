@@ -205,13 +205,13 @@ function apriApp(tipoApp) {
     const viewer = document.getElementById('app-viewer');
     const title = document.getElementById('viewer-title');
     
-    // Percorsi alle app (ora siamo nella cartella principale)
+    // Percorsi alle app (cartelle con underscore su GitHub)
     const percorsiApp = {
-        'verifiche': 'App Verifiche Antincendio e PrimoSoccorso/index.html',
-        'carico-merci': 'App Carico WEB/index.html',
-        'arrivi-merce': 'App Arrivi Merce WEB/index.html',
-        'calcolo-trasporti': 'App Calcolo Trasporti/index.html',
-        'rapportini': 'App Rapporto di Manutenzione/index.html'
+        'verifiche': 'App_Verifiche_Antincendio_e_PrimoSoccorso/index.html',
+        'carico-merci': 'App_Carico_WEB/index.html',
+        'arrivi-merce': 'App_Arrivi_Merce_WEB/index.html',
+        'calcolo-trasporti': 'App_Calcolo_Trasporti/index.html',
+        'rapportini': 'App_Rapporto_di_Manutenzione/index.html'
     };
     
     const titoliApp = {
