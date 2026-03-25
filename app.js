@@ -11,61 +11,16 @@ const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 let supabaseClient;
 
-
 // ============================================
-// INIZIALIZZAZIONE
+// MOSTRA FORM LOGIN DIRETTAMENTE
 // ============================================
-window.addEventListener('DOMContentLoaded', async () => {
-    console.log("🚀 PT Gestione - Inizializzazione...");
-    
-    // Assicurati che la libreria Supabase sia caricata
-    if (typeof supabase === 'undefined') {
-        console.error("❌ Libreria Supabase non caricata!");
-        alert("Errore: libreria Supabase non caricata. Ricarica la pagina.");
+function mostraFormLogin() {
+    const container = document.getElementById('auth-container');
+    if (!container) {
+        console.error("❌ Container auth non trovato!");
         return;
     }
     
-    // Inizializza Supabase
-    supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-    
-    // Mostro subito il login (fallback)
-    mostraLogin();
-    
-    // Provo a controllare sessione esistente
-    try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        
-        if (session) {
-            console.log("✅ Sessione trovata:", session.user.email);
-            mostraDashboard(session.user);
-        } else {
-            console.log("📝 Nessuna sessione - mostra login");
-            inizializzaAuthUI();
-        }
-    } catch (err) {
-        console.error("❌ Errore controllo sessione:", err);
-        inizializzaAuthUI();
-    }
-    
-    // Gestisci cambiamenti stato auth
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        console.log("📢 Evento auth:", event);
-        if (event === 'SIGNED_IN' && session) {
-            mostraDashboard(session.user);
-        } else if (event === 'SIGNED_OUT') {
-            mostraLogin();
-        }
-    });
-});
-
-
-// ============================================
-// CONFIGURAZIONE AUTH UI
-// ============================================
-function inizializzaAuthUI() {
-    const container = document.getElementById('auth-container');
-    
-    // MOSTRA SEMPRE il form di login - non aspettare la risposta dal server
     container.innerHTML = `
         <form id="login-form" onsubmit="handleLogin(event)">
             <div style="margin-bottom: 15px;">
@@ -86,9 +41,47 @@ function inizializzaAuthUI() {
             <a href="https://supabase.com/dashboard" target="_blank" style="color: var(--primary);">Gestisci utenti →</a>
         </p>
     `;
-    
-    console.log("✅ Form login mostrato");
 }
+
+// ============================================
+// INIZIALIZZAZIONE - VERSIONE SEMPLIFICATA
+// ============================================
+window.addEventListener('load', function() {
+    console.log("🚀 PT Gestione - Caricamento completato");
+    
+    // Mostra subito il form di login
+    mostraFormLogin();
+    
+    // Aspetta un attimo e poi prova a connettere Supabase
+    setTimeout(function() {
+        if (typeof supabase !== 'undefined') {
+            console.log("✅ Supabase caricato, inizializzo...");
+            supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+            
+            // Controlla sessione
+            supabaseClient.auth.getSession().then(function(result) {
+                if (result.data && result.data.session) {
+                    console.log("✅ Utente già loggato:", result.data.session.user.email);
+                    mostraDashboard(result.data.session.user);
+                }
+            }).catch(function(err) {
+                console.log("📝 Errore sessione (normale):", err.message);
+            });
+            
+            // Gestisci cambi stato auth
+            supabaseClient.auth.onAuthStateChange(function(event, session) {
+                console.log("📢 Evento:", event);
+                if (event === 'SIGNED_IN' && session) {
+                    mostraDashboard(session.user);
+                }
+            });
+        } else {
+            console.error("❌ Supabase non caricato!");
+            document.getElementById('auth-container').innerHTML = 
+                '<div style="color: red; padding: 20px; text-align: center;">❌ Errore caricamento. <a href="">Ricarica la pagina</a></div>';
+        }
+    }, 500);
+});
 
 
 // ============================================
@@ -140,6 +133,8 @@ function mostraLogin() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('app-viewer').style.display = 'none';
+    // Mostra di nuovo il form di login
+    mostraFormLogin();
 }
 
 function mostraDashboard(user) {
