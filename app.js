@@ -160,16 +160,17 @@ function mostraDashboard(user) {
 
 
 // ============================================
-// APERTURA APP ESTERNE
+// APERTURA APP ESTERNE (GitHub Pages)
 // ============================================
 function apriApp(tipoApp) {
-    // Percorsi alle app (cartelle con underscore su GitHub)
-    const percorsiApp = {
-        'verifiche': 'App_Verifiche_Antincendio_e_PrimoSoccorso/index.html',
-        'carico-merci': 'App_Carico_WEB/index.html',
-        'arrivi-merce': 'App_Arrivi_Merce_WEB/index.html',
-        'calcolo-trasporti': 'App_Calcolo_Trasporti/index.html',
-        'rapportini': 'App_Rapporto_di_Manutenzione/index.html'
+    // URL delle app pubblicate su GitHub Pages
+    const urlApp = {
+        'verifiche': 'https://pupino2006.github.io/verifica_antincendio/',
+        'carico-merci': 'https://pupino2006.github.io/app-carico/',
+        'arrivi-merce': 'https://pupino2006.github.io/PT-Arrivi-Merce/',
+        'calcolo-trasporti': 'https://pupino2006.github.io/Calcolatore-Trasporti/',
+        'rapportini': 'https://pupino2006.github.io/rapportini-pt/',
+        'gestione-ple': 'https://pupino2006.github.io/Gestione-PLE/'
     };
     
     const titoliApp = {
@@ -177,16 +178,16 @@ function apriApp(tipoApp) {
         'carico-merci': '📦 Carico Merci',
         'arrivi-merce': '🚚 Arrivi Merce',
         'calcolo-trasporti': '🚛 Calcolo Trasporti',
-        'rapportini': '📝 Rapportini Manutenzione'
+        'rapportini': '📝 Rapportini Manutenzione',
+        'gestione-ple': '🏗️ Gestione PLE'
     };
     
-    const percorso = percorsiApp[tipoApp];
+    const url = urlApp[tipoApp];
     const titolo = titoliApp[tipoApp];
     
-    if (percorso) {
-        // Apri in nuova finestra invece che iframe
-        window.open(percorso, '_blank');
-        console.log(`📱 Apertura app: ${titolo}`);
+    if (url) {
+        window.open(url, '_blank');
+        console.log(`📱 Apertura app: ${titolo} - ${url}`);
     } else {
         alert('App non disponibile: ' + tipoApp);
     }
